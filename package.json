@@ -1,0 +1,22 @@
+{
+  "name": "coffee-neural-network",
+  "version": "1.0.0",
+  "description": "a simple neural network in coffeescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucidrains/coffee-neural-network.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lucidrains/coffee-neural-network/issues"
+  },
+  "homepage": "https://github.com/lucidrains/coffee-neural-network",
+  "dependencies": {
+    "mathjs": "^1.7.0"
+  }
+}

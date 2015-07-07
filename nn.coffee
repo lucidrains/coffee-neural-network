@@ -1,17 +1,36 @@
+math = require 'mathjs'
+
 class Synapse
   constructor: (@source_neuron, @dest_neuron)->
     @weight = @prev_weight = Math.random() * 2 - 1
+
+class TanhGate
+  calculate: (activation)->
+    math.tanh(activation)
+  
+  derivative: (output)->
+    1 - output * output
+
+class SigmoidGate
+  calculate: (activation)->
+    1.0 / (1.0 + Math.exp(-activation))
+
+  derivative: (output)->
+    output * (1 - output)
 
 class Neuron
   @LEARNING_RATE = 1.0
   @MOMENTUM = 0.05
 
-  constructor: ->
+  constructor: (opts={})->
+    gate_class = opts.gate_class || SigmoidGate
+
     @prev_threshold = @threshold = Math.random() * 2 - 1
     @synapses_in = []
     @synapses_out = []
     @output = 0.0
     @error = 0.0
+    @gate = new gate_class()
 
   calculate_output: ->
     activation = 0
@@ -20,10 +39,10 @@ class Neuron
       activation += s.weight * s.source_neuron.output
 
     activation -= @threshold
-    @output = 1.0 / (1.0 + Math.exp(-activation))
+    @output =  @gate.calculate(activation)# 
 
   derivative: ->
-    @output * (1 - @output)
+    @gate.derivative @output
   
   output_train: (rate, target)->
     @error = (target - @output) * @derivative()
@@ -49,13 +68,15 @@ class Neuron
     @prev_threshold = temp_threshold
 
 class NeuralNetwork
-  constructor: (input, hiddens..., output)->
-    @input_layer = (new Neuron() for i in [0...input])
+  constructor: (gate_class, input, hiddens..., output)->
+    opts = {gate_class}
+
+    @input_layer = (new Neuron(opts) for i in [0...input])
     
     @hidden_layers = for hidden in hiddens
-      (new Neuron() for i in [0...hidden])
+      (new Neuron(opts) for i in [0...hidden])
 
-    @output_layer = (new Neuron() for i in [0...output])
+    @output_layer = (new Neuron(opts) for i in [0...output])
 
     for i in @input_layer
       for h in @hidden_layers[0]
@@ -99,13 +120,19 @@ class NeuralNetwork
   current_outputs: ->
     (n.output for n in @output_layer)
 
-nn = new NeuralNetwork(2, 10, 10, 1)
+# Start a neural network
+
+nn = new NeuralNetwork(TanhGate, 2, 10, 10, 1)
+
+# Train
 
 for i in [0...10000]
   nn.train [1, 0], [1]
   nn.train [0, 0], [0]
   nn.train [0, 1], [1]
   nn.train [1, 1], [0]
+
+# Test output
 
 for i in [[0, 1], [1, 0], [0, 0], [1, 1]]
   nn.feed_forward i
