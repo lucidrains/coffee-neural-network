@@ -36,11 +36,17 @@ class Neuron
     @prev_threshold = @threshold = Math.random() * 2 - 1
     @synapses_in = []
     @synapses_out = []
+    @dropped = false
     @output = 0.0
     @error = 0.0
     @gate = new gate_class()
 
+  dropout: ->
+    @dropped = true
+    @output = 0
+    
   calculate_output: ->
+    @dropped = false
     activation = 0
 
     for s in @synapses_in
@@ -76,6 +82,8 @@ class Neuron
     @prev_threshold = temp_threshold
 
 class NeuralNetwork
+  @DROPOUT = 0.3
+
   constructor: (gate_class, input, hiddens..., output)->
     opts = {gate_class}
 
@@ -120,7 +128,10 @@ class NeuralNetwork
 
     for layer in @hidden_layers
       for n in layer
-        n.calculate_output()
+        if Math.random() < NeuralNetwork.DROPOUT
+          n.dropout()
+        else
+          n.calculate_output()
 
     for n in @output_layer
       n.calculate_output()
@@ -130,7 +141,7 @@ class NeuralNetwork
 
 # Start a neural network
 
-nn = new NeuralNetwork(ReluGate, 2, 10, 10, 1)
+nn = new NeuralNetwork(ReluGate, 2, 20, 20, 1)
 
 # Train
 
