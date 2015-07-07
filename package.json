@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/lucidrains/coffee-neural-network",
   "dependencies": {
+    "coffee-script": "^1.9.3",
     "mathjs": "^1.7.0"
   }
 }
