@@ -18,8 +18,16 @@ class SigmoidGate
   derivative: (output)->
     output * (1 - output)
 
+class ReluGate
+  @LEAKY_CONSTANT = 0.01
+  calculate: (activation)->
+    if activation < 0 then activation * ReluGate.LEAKY_CONSTANT else activation
+
+  derivative: (output)->
+    if output > 0 then 1 else ReluGate.LEAKY_CONSTANT
+
 class Neuron
-  @LEARNING_RATE = 1.0
+  @LEARNING_RATE = 0.1
   @MOMENTUM = 0.05
 
   constructor: (opts={})->
@@ -122,7 +130,7 @@ class NeuralNetwork
 
 # Start a neural network
 
-nn = new NeuralNetwork(TanhGate, 2, 10, 10, 1)
+nn = new NeuralNetwork(ReluGate, 2, 10, 10, 1)
 
 # Train
 
